@@ -1,4 +1,4 @@
-package com.cdac.service.Impl;
+package com.cdac.service.impl;
 
 import com.cdac.service.OwnershipResponseService;
 

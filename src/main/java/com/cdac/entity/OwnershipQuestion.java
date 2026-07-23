@@ -56,6 +56,9 @@ public class OwnershipQuestion {
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
+    @Column(name="expected_answer", nullable=false,columnDefinition="TEXT")
+    private String expectedAnswer;
+    
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

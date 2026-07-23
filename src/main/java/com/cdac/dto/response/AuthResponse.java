@@ -18,7 +18,7 @@ public class AuthResponse {
     private String token;
 
     @Builder.Default
-    private String tokenType = "Bearer";
+    private String type = "Bearer";
 
     private Long userId;
 
@@ -27,4 +27,5 @@ public class AuthResponse {
     private String email;
 
     private UserRole role;
+
 }

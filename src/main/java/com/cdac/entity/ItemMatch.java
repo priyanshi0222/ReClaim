@@ -21,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -77,7 +78,6 @@ public class ItemMatch {
     private LocalDateTime updatedAt;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "itemMatch")
-    @Builder.Default
-    private List<Claim> claims = new ArrayList<>();
+    @OneToOne(mappedBy = "itemMatch",fetch=FetchType.LAZY)
+    private Claim claims;
 }
