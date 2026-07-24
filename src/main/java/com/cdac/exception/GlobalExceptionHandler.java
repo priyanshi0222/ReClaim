@@ -114,6 +114,13 @@ public class GlobalExceptionHandler {
                 request
         );
     }
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<ApiError> handleInvalidOperationException(
+            InvalidOperationException ex,
+            HttpServletRequest request) {
+      
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
 
     private ResponseEntity<ApiError> buildErrorResponse(
             HttpStatus status,
