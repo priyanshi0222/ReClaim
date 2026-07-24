@@ -32,7 +32,7 @@ public class UserController {
                 userService.getCurrentUserProfile());
     }
 
-    @PutMapping("/profile")
+    @PutMapping("/profile/update")
     public ResponseEntity<UserProfileResponse> updateProfile(
             @Valid @RequestBody UpdateProfileRequest request) {
 
@@ -47,8 +47,7 @@ public class UserController {
 
         userService.changePassword(request);
 
-        return new MessageResponse(
-                "Password changed successfully.");
+        return new MessageResponse("Password changed successfully.");
     }
 
 }
