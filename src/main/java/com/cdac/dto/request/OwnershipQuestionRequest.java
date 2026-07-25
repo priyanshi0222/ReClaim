@@ -18,4 +18,8 @@ public class OwnershipQuestionRequest {
     @NotBlank(message = "Question is required.")
     @Size(max = 255, message = "Question cannot exceed 255 characters.")
     private String questionText;
+    
+
+    @NotBlank(message = "Expected answer is required.")
+    private String expectedAnswer;
 }

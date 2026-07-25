@@ -52,7 +52,14 @@ public class SecurityConfig {
 //
 //                        .anyRequest().authenticated())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll())    //do change and uncomment the above part later
+                	    .requestMatchers(
+                	            "/api/auth/**",
+                	            "/v3/api-docs/**",
+                	            "/swagger-ui/**",
+                	            "/swagger-ui.html")
+                	    .permitAll()
+
+                	    .anyRequest().authenticated())  //do change and uncomment the above part later
                 .authenticationProvider(authenticationProvider())
 
                 .addFilterBefore(

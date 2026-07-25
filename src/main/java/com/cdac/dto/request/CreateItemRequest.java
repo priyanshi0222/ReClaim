@@ -46,4 +46,7 @@ public class CreateItemRequest {
     
     @Size(max = 5, message = "Maximum 5 ownership questions are allowed.")
     private List<OwnershipQuestionRequest> ownershipQuestions;
+    
+    @Size(max = 5, message = "Maximum 5 images are allowed.")
+    private List<String> imageUrls;
 }

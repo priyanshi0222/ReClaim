@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.cdac.dto.request.CreateItemRequest;
 import com.cdac.dto.request.OwnershipQuestionRequest;
@@ -25,7 +24,6 @@ import com.cdac.repository.ItemImageRepository;
 import com.cdac.repository.ItemRepository;
 import com.cdac.repository.OwnershipQuestionRepository;
 import com.cdac.service.CurrentUserService;
-import com.cdac.service.FileStorageService;
 import com.cdac.service.ItemService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,11 +37,10 @@ public class ItemServiceImpl implements ItemService {
     private final ItemImageRepository itemImageRepository;
     private final OwnershipQuestionRepository ownershipQuestionRepository;
     private final CurrentUserService currentUserService;
-    private final FileStorageService fileStorageService;
+   
 
     @Override
-    public ItemResponse createLostItem(CreateItemRequest request,
-                                       List<MultipartFile> images) {
+    public ItemResponse createLostItem(CreateItemRequest request){
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -62,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item savedItem = itemRepository.save(item);
 
-        saveImages(savedItem, images);
+        saveImages(savedItem,  request.getImageUrls());
 
         return ItemMapper.toItemResponse(
                 savedItem,
@@ -72,8 +69,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponse createFoundItem(CreateItemRequest request,
-                                        List<MultipartFile> images) {
+    public ItemResponse createFoundItem(CreateItemRequest request) {
 
         if (request.getOwnershipQuestions() == null
                 || request.getOwnershipQuestions().size() < 3) {
@@ -99,18 +95,19 @@ public class ItemServiceImpl implements ItemService {
 
         Item savedItem = itemRepository.save(item);
 
-        saveImages(savedItem, images);
+        saveImages(savedItem, request.getImageUrls());
 
         int displayOrder = 1;
 
         for (OwnershipQuestionRequest questionRequest
                 : request.getOwnershipQuestions()) {
 
-            OwnershipQuestion question = OwnershipQuestion.builder()
-                    .item(savedItem)
-                    .questionText(questionRequest.getQuestionText())
-                    .displayOrder(displayOrder++)
-                    .build();
+        	OwnershipQuestion question = OwnershipQuestion.builder()
+        	        .item(savedItem)
+        	        .questionText(questionRequest.getQuestionText())
+        	        .expectedAnswer(questionRequest.getExpectedAnswer())
+        	        .displayOrder(displayOrder++)
+        	        .build();
 
             ownershipQuestionRepository.save(question);
         }
@@ -122,22 +119,19 @@ public class ItemServiceImpl implements ItemService {
         );
     }
 
-    private void saveImages(Item item,
-                            List<MultipartFile> images) {
+    private void saveImages(Item item, List<String> imageUrls) {
 
-        if (images == null || images.isEmpty()) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
             return;
         }
 
         int displayOrder = 1;
 
-        for (MultipartFile file : images) {
-
-            String fileName = fileStorageService.storeFile(file);
+        for (String imageUrl : imageUrls) {
 
             ItemImage image = ItemImage.builder()
                     .item(item)
-                    .imageUrl(fileName)
+                    .imageUrl(imageUrl)
                     .displayOrder(displayOrder++)
                     .build();
 
@@ -197,9 +191,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponse updateItem(Long itemId,
-                                   CreateItemRequest request,
-                                   List<MultipartFile> images) {
+    public ItemResponse updateItem(
+            Long itemId,
+            CreateItemRequest request) {
 
         User currentUser = currentUserService.getCurrentUser();
 
@@ -223,17 +217,8 @@ public class ItemServiceImpl implements ItemService {
 
         Item updatedItem = itemRepository.save(item);
 
-        // Delete existing images
-        List<ItemImage> oldImages =
-                itemImageRepository.findByItemOrderByDisplayOrderAsc(updatedItem);
-
-        for (ItemImage image : oldImages) {
-            fileStorageService.deleteFile(image.getImageUrl());
-        }
-
         itemImageRepository.deleteByItem(updatedItem);
-
-        saveImages(updatedItem, images);
+        saveImages(updatedItem, request.getImageUrls());
 
         // Update ownership questions only for found items
         if (updatedItem.getItemType() == ItemType.FOUND) {
@@ -250,8 +235,10 @@ public class ItemServiceImpl implements ItemService {
                     OwnershipQuestion question = OwnershipQuestion.builder()
                             .item(updatedItem)
                             .questionText(questionRequest.getQuestionText())
+                            .expectedAnswer(questionRequest.getExpectedAnswer())
                             .displayOrder(displayOrder++)
                             .build();
+                    
 
                     ownershipQuestionRepository.save(question);
                 }
