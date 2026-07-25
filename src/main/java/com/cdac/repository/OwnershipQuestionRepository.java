@@ -19,4 +19,6 @@ public interface OwnershipQuestionRepository extends JpaRepository<OwnershipQues
     boolean existsByItemAndDisplayOrder(Item item, Integer displayOrder);
 
     Optional<OwnershipQuestion> findByItemAndDisplayOrder(Item item, Integer displayOrder);
+
+    void deleteByItem(Item item);
 }

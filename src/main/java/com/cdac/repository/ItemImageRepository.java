@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.cdac.entity.Item;
 import com.cdac.entity.ItemImage;
+import com.cdac.entity.User;
 
 @Repository
 public interface ItemImageRepository extends JpaRepository<ItemImage, Long> {
@@ -19,4 +20,7 @@ public interface ItemImageRepository extends JpaRepository<ItemImage, Long> {
     boolean existsByItemAndDisplayOrder(Item item, Integer displayOrder);
 
     Optional<ItemImage> findByItemAndDisplayOrder(Item item, Integer displayOrder);
+    
+    void deleteByItem(Item item);
+    
 }
